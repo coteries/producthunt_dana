@@ -1,15 +1,17 @@
 package com.example.kianfar.producthunt_danakianfar.activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.fragments.ProductDetailFragment;
 import com.example.kianfar.producthunt_danakianfar.fragments.ProductListFragment;
 import com.example.kianfar.producthunt_danakianfar.R;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 /**
  * An activity representing a list of Products. This activity
@@ -31,30 +33,43 @@ public class ProductListActivity extends AppCompatActivity
         implements ProductListFragment.Callbacks {
 
 
-    private String oauth_url = "https://api.producthunt.com/v1/oauth/token", posts_url = "https://api.producthunt.com/v1/posts/tech";
-    private ObjectMapper mapper = new ObjectMapper();
-
-    private void fetchProductsFromAPI() {
-
-
-
-    }
+    public static Activity context;
+    private SharedPreferences preferences ;
+    private boolean calledDataPool = DataPool.init(); // creates thread for getting access token while app renders.
 
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_app_bar);
+        preferences = getSharedPreferences("com.example.kianfar.producthunt_danakianfar", MODE_PRIVATE);
+
+        context = this;
+
+        // check if app is on its first run
+        if (preferences.getBoolean("firstRun", true)) {
+
+            // call product hunt to get items
+            // run DB init script
+
+
+
+
+            // store in DB
+
+            preferences.edit().putBoolean("firstRun", false).apply(); // do this last, in case the steps above fail
+        }
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
+        // Note: fragment does data handling
     }
 
     /**
@@ -63,8 +78,6 @@ public class ProductListActivity extends AppCompatActivity
      */
     @Override
     public void onItemSelected(String id) {
-        // In single-pane mode, simply start the detail activity
-        // for the selected item ID.
         Intent detailIntent = new Intent(this, ProductDetailActivity.class);
         detailIntent.putExtra(ProductDetailFragment.ARG_ITEM_ID, id);
         startActivity(detailIntent);

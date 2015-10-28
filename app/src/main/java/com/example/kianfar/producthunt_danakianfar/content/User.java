@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
         "id",
         "name",
-        "image_url",
+        "image_url"
 })
 public class User {
 

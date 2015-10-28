@@ -1,13 +1,14 @@
 package com.example.kianfar.producthunt_danakianfar.fragments;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.example.kianfar.producthunt_danakianfar.dummy.DummyContent;
+import com.example.kianfar.producthunt_danakianfar.content.DatabaseHelper;
+import com.example.kianfar.producthunt_danakianfar.content.ProducthuntCursorAdapter;
 
 /**
  * A list fragment representing a list of Products. This fragment
@@ -70,12 +71,15 @@ public class ProductListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        // get data from SQLite db
+        DatabaseHelper handler = new DatabaseHelper(getActivity());
+        SQLiteDatabase db = handler.getWritableDatabase();
+
+        // do select query on data
+        Cursor cursor= db.rawQuery(DatabaseHelper.select_latest_products, null);
+
+        // bind everything together
+        setListAdapter(new ProducthuntCursorAdapter(getActivity(), cursor, 0));
     }
 
     @Override
@@ -115,7 +119,7 @@ public class ProductListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+//        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id); TODO fixme dude
     }
 
     @Override

@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.example.kianfar.producthunt_danakianfar.R;
 import com.example.kianfar.producthunt_danakianfar.activities.ProductDetailActivity;
 import com.example.kianfar.producthunt_danakianfar.activities.ProductListActivity;
-import com.example.kianfar.producthunt_danakianfar.dummy.DummyContent;
 
 /**
  * A fragment representing a single Product detail screen.
@@ -30,7 +29,7 @@ public class ProductDetailFragment extends Fragment {
     /**
      * The dummy content this fragment is presenting.
      */
-    private DummyContent.DummyItem mItem;
+//    private DummyContent.DummyItem mItem; TODO duuude
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -47,13 +46,13 @@ public class ProductDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.content);
-            }
+//            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+//
+//            Activity activity = this.getActivity(); TODO
+//            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+//            if (appBarLayout != null) {
+//                appBarLayout.setTitle(mItem.content);
+//            }
         }
     }
 
@@ -63,9 +62,9 @@ public class ProductDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_product_detail, container, false);
 
         // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.product_detail)).setText(mItem.details);
-        }
+//        if (mItem != null) {
+//            ((TextView) rootView.findViewById(R.id.product_detail)).setText(mItem.details);
+//        } TODO
 
         return rootView;
     }

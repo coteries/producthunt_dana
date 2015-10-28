@@ -13,17 +13,17 @@ import java.net.URL;
  */
 public class HttpUtils {
 
-    public static String GET = "GET";
-    public static String PUT = "PUT";
+    public static final String GET = "GET";
+    public static final String POST = "POST";
 
-    public static String makeHttpRequest(String call, String method) throws IOException {
+    public static String makeHttpRequest(String call, String callType) throws IOException {
 
         StringBuffer response = null;
         URL url = new URL(call);
         HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 
         // optional default is GET
-        httpConnection.setRequestMethod(method);
+        httpConnection.setRequestMethod(callType);
         httpConnection.setReadTimeout(10 * 1000); // 10 seconds timeout
 
         //add request header
