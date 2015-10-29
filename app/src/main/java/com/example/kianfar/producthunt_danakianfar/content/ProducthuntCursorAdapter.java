@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.R;
 
 import java.util.ArrayList;
@@ -50,34 +50,35 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
                         null),
                 new ArrayList<User>());
 
-        // add makers
-        boolean moveCursor = true;
-        do {
+        // add makers to post object
+        while (true) {
 
             // Since there is a 1-many relationship between product and maker, we need to try to find
             // all repeating sections
             cursor.moveToNext();
 
-            if (cursor.getInt(0) == post.getId()) {
+            if (cursor.getInt(0) == post.getId()) { // if the next row in the cursor has the same post id, then continue
 
                 post.getMakers().add(new User(
                         cursor.getInt(9),
                         cursor.getString(10),
                         new ImageUrl(cursor.getString(11))));
-
-            } else {
+            } else { // otherwise its not the same post, break loop and move on
                 cursor.moveToPrevious();
-                moveCursor = false;
                 break;
             }
         }
-        while (moveCursor);
 
-        // bind to view
+        // Add to datapool
+        DataPool.posts_map.put(post.getId(), post);
+        DataPool.posts_list.add(post);
+
+        // bind data to view
         name.setText(post.getName());
         description.setText(post.getTagline());
         upvoteButton.setText(post.getVotes_count());
 
         // TODO load image from cache
+
     }
 }

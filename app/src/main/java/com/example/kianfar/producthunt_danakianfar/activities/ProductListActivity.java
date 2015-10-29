@@ -54,7 +54,7 @@ public class ProductListActivity extends AppCompatActivity
         if (preferences.getBoolean("firstRun", true)) {
 
             // call product hunt to get items
-            // run DB init script
+
 
 
 

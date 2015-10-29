@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
+
+import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.content.DatabaseHelper;
 import com.example.kianfar.producthunt_danakianfar.content.ProducthuntCursorAdapter;
 
@@ -119,7 +121,7 @@ public class ProductListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-//        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id); TODO fixme dude
+        mCallbacks.onItemSelected(DataPool.posts_list.get(position).getId()+"");
     }
 
     @Override
