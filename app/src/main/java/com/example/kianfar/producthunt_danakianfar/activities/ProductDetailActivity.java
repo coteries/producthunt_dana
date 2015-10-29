@@ -21,6 +21,9 @@ import com.example.kianfar.producthunt_danakianfar.R;
  */
 public class ProductDetailActivity extends AppCompatActivity {
 
+
+    public ProductDetailActivity(){}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

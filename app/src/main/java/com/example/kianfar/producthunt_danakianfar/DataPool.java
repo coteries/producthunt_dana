@@ -1,5 +1,6 @@
 package com.example.kianfar.producthunt_danakianfar;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.example.kianfar.producthunt_danakianfar.Utils.HttpUtils;
@@ -25,15 +26,15 @@ public class DataPool {
     public static String access_token = "";
     public static final String developer_token = "624e8c5d980163ec65ae4715d1b4819d7ff1a45e4d7af989ba82b54845a4a7b6";
     public static final String oauth_url = "https://api.producthunt.com/v1/oauth/token?client_id=%s&client_secret=%s&grant_type=client_credentials",
-            posts_url = "https://api.producthunt.com/v1/posts_map/all";
+            posts_url = "https://api.producthunt.com/v1/posts_map/all?per_page=50";
     private static ObjectMapper mapper = new ObjectMapper();
-
+    public static final String imagePath = Environment.getExternalStorageDirectory().getPath() + "/producthunt_kianfar/";
     private static List<Post> posts_list = new ArrayList<>();
     private static Map<Integer, Post> posts_map = new HashMap<>();
 
 
     public static boolean init() {
-
+        Log.d("DataPool", "attempting to get access token");
         // get access token
         // this is an unusual way to handle it, but its the fastest. all other networking operations are done with the Volley library.
         // Volley can't be used here because it requires access to the app's context, which is not available when this methods is called from
@@ -47,13 +48,14 @@ public class DataPool {
                     });
 
                     access_token = accessTokenResponse.accessToken;
+                    Log.d("DataPool", "Access token obtained.");
 
                 } catch (IOException e) {
                     Log.e("Http Access Token", e.getMessage());
                     //
                 }
             }
-        }).run();
+        }).start();
 
         return true;
     }

@@ -48,7 +48,7 @@ public class ProductDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = DataPool.posts_map.get(getArguments().getString(ARG_ITEM_ID));
+            mItem = DataPool.getPosts_map().get(getArguments().getString(ARG_ITEM_ID));
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);

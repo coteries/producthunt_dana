@@ -1,6 +1,7 @@
 package com.example.kianfar.producthunt_danakianfar.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.widget.ListView;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.content.DatabaseHelper;
+import com.example.kianfar.producthunt_danakianfar.content.ProductHuntFacade;
 import com.example.kianfar.producthunt_danakianfar.content.ProducthuntCursorAdapter;
 
 /**
@@ -39,6 +41,12 @@ public class ProductListFragment extends ListFragment {
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
+
+
+    private SharedPreferences preferences;
+    private DatabaseHelper databaseHelper;
+    private static ProductListFragment currentFragment;
+
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -73,27 +81,41 @@ public class ProductListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // get data from SQLite db
-        DatabaseHelper handler = new DatabaseHelper(getActivity());
-        SQLiteDatabase db = handler.getWritableDatabase();
+        currentFragment = this;
 
-        // do select query on data
-        Cursor cursor= db.rawQuery(DatabaseHelper.select_latest_products, null);
-
-        // bind everything together
-        setListAdapter(new ProducthuntCursorAdapter(getActivity(), cursor, 0));
+        // call product hunt to get items
+        ProductHuntFacade facade = new ProductHuntFacade();
+        facade.fetchLatestPosts(getActivity());
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Restore the previously serialized activated item position.
-        if (savedInstanceState != null
-                && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-            setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
-        }
+//        preferences = getActivity().getSharedPreferences("com.example.kianfar.producthunt_danakianfar", Activity.MODE_PRIVATE);
+//        // If the app is running for the first time, populate database
+//        if (!preferences.getBoolean("firstRun", true)) {
+//            bindDBToAdapter();
+//        }
     }
+
+
+    public static void onApiCallComplete() {
+        currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
+        currentFragment.bindDBToAdapter();
+    }
+
+
+    public void bindDBToAdapter() {
+        SQLiteDatabase db = new DatabaseHelper(getActivity()).getReadableDatabase();
+        // do select query on data
+        Cursor cursor = db.rawQuery(DatabaseHelper.select_latest_products, null);
+
+        // bind everything together
+        ProducthuntCursorAdapter adapter = new ProducthuntCursorAdapter(getActivity(), cursor, 0);
+        setListAdapter(adapter);
+    }
+
 
     @Override
     public void onAttach(Activity activity) {
@@ -121,7 +143,7 @@ public class ProductListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DataPool.posts_list.get(position).getId()+"");
+        mCallbacks.onItemSelected(DataPool.getPosts_list().get(position).getId() + "");
     }
 
     @Override

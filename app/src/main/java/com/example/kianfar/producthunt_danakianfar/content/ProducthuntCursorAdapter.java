@@ -2,6 +2,10 @@ package com.example.kianfar.producthunt_danakianfar.content;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +16,16 @@ import android.widget.TextView;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.R;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 
 public class ProducthuntCursorAdapter extends CursorAdapter {
+
 
     public ProducthuntCursorAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, 0);
@@ -32,7 +41,7 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
 
         // collect all data
         TextView name = (TextView) view.findViewById(R.id.text_product_title), description = (TextView) view.findViewById(R.id.text_product_description);
-        ImageView profile = (ImageView) view.findViewById(R.id.image_profile);
+        ImageView profileImage = (ImageView) view.findViewById(R.id.image_profile);
         Button upvoteButton = (Button) view.findViewById(R.id.button_upvote);
 
 
@@ -69,16 +78,28 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
             }
         }
 
-        // Add to datapool
-        DataPool.posts_map.put(post.getId(), post);
-        DataPool.posts_list.add(post);
+
+        // If not already in memory, Add to datapool
+        if (!DataPool.getPosts_map().containsKey(post.getId())) {
+            DataPool.getPosts_map().put(post.getId(), post);
+            DataPool.getPosts_list().add(post);
+        }
 
         // bind data to view
         name.setText(post.getName());
         description.setText(post.getTagline());
         upvoteButton.setText(post.getVotes_count());
 
-        // TODO load image from cache
-
+        // use picasso to load image from disk
+        // TODO add up to 3 photos
+        if (post.getMakers().size() > 0) {
+            Picasso.with(context)
+                    .load(DataPool.imagePath + post.getMakers().get(0).getId() + ".jpg")
+                    .fit()
+                    .tag(context)
+                    .into(profileImage);
+        }
     }
+
+
 }

@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
@@ -30,4 +34,5 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-core:2.6.3'
     compile project(':volley')
     compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

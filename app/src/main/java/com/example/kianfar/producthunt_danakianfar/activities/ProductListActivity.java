@@ -34,9 +34,10 @@ public class ProductListActivity extends AppCompatActivity
 
 
     public static Activity context;
-    private SharedPreferences preferences ;
     private boolean calledDataPool = DataPool.init(); // creates thread for getting access token while app renders.
 
+
+    public ProductListActivity(){}
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -46,24 +47,6 @@ public class ProductListActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_app_bar);
-        preferences = getSharedPreferences("com.example.kianfar.producthunt_danakianfar", MODE_PRIVATE);
-
-        context = this;
-
-        // check if app is on its first run
-        if (preferences.getBoolean("firstRun", true)) {
-
-            // call product hunt to get items
-
-
-
-
-
-            // store in DB
-
-            preferences.edit().putBoolean("firstRun", false).apply(); // do this last, in case the steps above fail
-        }
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
