@@ -2,8 +2,10 @@ package com.example.kianfar.producthunt_danakianfar;
 
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.kianfar.producthunt_danakianfar.Utils.HttpUtils;
+import com.example.kianfar.producthunt_danakianfar.activities.ProductListActivity;
 import com.example.kianfar.producthunt_danakianfar.content.OauthResponse;
 import com.example.kianfar.producthunt_danakianfar.content.Post;
 import com.example.kianfar.producthunt_danakianfar.fragments.ProductListFragment;
@@ -37,6 +39,7 @@ public class DataPool {
 
 
     public static boolean init() {
+
         Log.d("DataPool", "attempting to get access token");
         // get access token
         // this is an unusual way to handle it, but its the fastest. all other networking operations are done with the Volley library.
@@ -52,15 +55,14 @@ public class DataPool {
 
                     access_token = accessTokenResponse.getAccessToken();
                     Log.d("DataPool", "Access token obtained.");
-                    ProductListFragment.fetchData();
+                    ProductListFragment.fetchData(true);
 
                 } catch (IOException e) {
                     Log.e("Http Access Token", e.getMessage());
-                    //
+                    ProductListFragment.fetchData(false);
                 }
             }
         }).start();
-
         return false;
     }
 

@@ -21,7 +21,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "CREATE UNIQUE INDEX post_index ON Post (_id) ; " ,
             "CREATE UNIQUE INDEX maker_index ON Maker (user_id, post_id);"};
     public static final String select_latest_products =    "SELECT p._id, p.votes_count, p.name, p.tagline, p.day_, p.created_at, p.redirect_url, p.user_id, u2.name as user_name, u._id as makerid, u.name as makername, u.imageurl as makerimage " +
-            "FROM Post p JOIN Maker m JOIN User u JOIN User u2 on p._id = m.post_id AND u._id = m.user_id AND p.user_id = u2._id";
+            "FROM Post p JOIN Maker m JOIN User u JOIN User u2 on p._id = m.post_id AND u._id = m.user_id AND p.user_id = u2._id ";// +
+//            "WHERE p.created_at > %s " +
+//            "ORDER BY p.created_at " +
+//            "LIMIT 20";
 
 
     private final String drop_all_tables = "DROP TABLE IF EXISTS User; " +
@@ -46,18 +49,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(create_script[0]);
         db.execSQL(create_script[1]);
         db.execSQL(create_script[2]);
-
-        Cursor cursor = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';", null);
-//        int count = cursor.getInt(0);
-
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(drop_all_tables);
-//        db.delete("USER", null, null);
-//        db.delete("POST", null, null);
-//        db.delete("MAKER", null, null);
         onCreate(db);
     }
 
@@ -68,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public void storePostsInDB(List<Post> posts) {
-        Log.d("Database Helper", "Storing Post objects in sqlite database...");
+        Log.d("Database Helper", "Storing Post objects in sqlite database... count: "+posts.size());
 
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         SQLiteDatabase db = databaseHelper.getWritableDatabase();

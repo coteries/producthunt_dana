@@ -9,8 +9,10 @@ import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
+import com.example.kianfar.producthunt_danakianfar.activities.ProductListActivity;
 import com.example.kianfar.producthunt_danakianfar.content.DatabaseHelper;
 import com.example.kianfar.producthunt_danakianfar.content.ProductHuntFacade;
 import com.example.kianfar.producthunt_danakianfar.content.ProducthuntCursorAdapter;
@@ -79,6 +81,8 @@ public class ProductListFragment extends ListFragment {
         currentFragment = this;
     }
 
+    public static boolean offlineBrowsing = false, databaseReady = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +98,18 @@ public class ProductListFragment extends ListFragment {
 //        if (!preferences.getBoolean("firstRun", true)) {
 //            bindDBToAdapter();
 //        }
+
+        // a boolean flag to signal offline browsing to the user
+        if (offlineBrowsing) {
+            Toast.makeText(currentFragment.getActivity(), "Offline browsing..", Toast.LENGTH_SHORT);
+        }
+
+        // this boolean flag is set by a worker thread to signal that the data is ready once the view is created
+        if (databaseReady) {
+            currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
+            currentFragment.bindDBToAdapter();
+            getListView().invalidateViews(); // force redraw, android is buggy
+        }
     }
 
     @Override
@@ -106,10 +122,16 @@ public class ProductListFragment extends ListFragment {
     /**
      * Once the access_token is received, this method is called by its parent activity to get data from producthunt
      */
-    public static void fetchData() {
-        // call product hunt to get items
-        ProductHuntFacade facade = new ProductHuntFacade();
-        facade.fetchLatestPosts(currentFragment.getActivity());
+    public static void fetchData(boolean tokenObtained) {
+
+        // if no token has been obtained (no internet connection), then continue to offline browsing
+        if (tokenObtained) {
+            ProductHuntFacade facade = new ProductHuntFacade();
+            facade.fetchLatestPosts(currentFragment.getActivity());
+        } else {
+            offlineBrowsing = true;
+            onApiCallComplete();
+        }
     }
 
 
@@ -117,9 +139,7 @@ public class ProductListFragment extends ListFragment {
      * Once all data has been received from Product Hunt, this method is invoked to write the data to the database and to bind the views to the database
      */
     public static void onApiCallComplete() {
-        Log.d("Product Hunt API", "All data received from api, now proceeding to write to db and bind adapters");
-        currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
-        currentFragment.bindDBToAdapter();
+        databaseReady = true;
     }
 
 
@@ -135,7 +155,8 @@ public class ProductListFragment extends ListFragment {
         // bind everything together
         ProducthuntCursorAdapter adapter = new ProducthuntCursorAdapter(getActivity(), cursor, 0);
         setListAdapter(adapter);
-        adapter.notifyDataSetChanged(); // force it to render
+//        adapter.notifyDataSetChanged(); // force it to render
+        Log.d("Adapter", "Done!");
     }
 
 

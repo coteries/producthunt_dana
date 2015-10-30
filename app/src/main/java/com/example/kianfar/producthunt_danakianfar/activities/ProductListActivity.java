@@ -1,9 +1,13 @@
 package com.example.kianfar.producthunt_danakianfar.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -52,6 +56,9 @@ public class ProductListActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.actionbar);
+
         // Note: fragment does data handling
     }
 
@@ -64,5 +71,11 @@ public class ProductListActivity extends AppCompatActivity
         Intent detailIntent = new Intent(this, ProductDetailActivity.class);
         detailIntent.putExtra(ProductDetailFragment.ARG_ITEM_ID, id);
         startActivity(detailIntent);
+    }
+
+    public static boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

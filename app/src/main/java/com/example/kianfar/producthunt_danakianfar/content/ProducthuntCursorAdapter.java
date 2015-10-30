@@ -7,12 +7,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 
 public class ProducthuntCursorAdapter extends CursorAdapter {
 
+    private int limit =0;
 
     public ProducthuntCursorAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, 0);
@@ -39,9 +42,15 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
         return LayoutInflater.from(context).inflate(R.layout.short_product_item, parent, false);
     }
 
+//    @Override
+//    public int getCount() {
+//        return 20;
+//    }
+
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
 
+        Log.d("Cursor Adapter", "Retrieved "+cursor.getCount()+" items");
         ProductHuntLayout layout = (ProductHuntLayout) view;
 
         // collect all data
@@ -64,13 +73,13 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
                         null),
                 new ArrayList<User>());
 
+        // TODO this is buggy
         // add makers to post object
         while (true) {
 
             // Since there is a 1-many relationship between product and maker, we need to try to find
             // all repeating sections
             cursor.moveToNext();
-
 
             if (cursor.getPosition() < cursor.getCount() && cursor.getInt(0) == post.getId()) { // if the next row in the cursor has the same post id, then continue
 
@@ -82,9 +91,7 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
                 cursor.moveToPrevious();
                 break;
             }
-
         }
-
 
         // If not already in memory, Add to datapool
         if (!DataPool.getPosts_map().containsKey(post.getId())) {
@@ -110,24 +117,18 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
             }
         });
 
-
         // use picasso to load image from disk
         // TODO add up to 3 photos
         if (post.getMakers().size() > 0) {
             String path = DataPool.imagePath + post.getMakers().get(0).getId() + ".jpg";
-
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
 
+            Log.d("Image Loading", "Loading image for "+post.getName());
             profileImage.setImageBitmap(myBitmap);
 
-
-//            Picasso.with(context)
-//                    .load(path)
-//                    .fit()
-//                    .tag(context)
-//                    .into(profileImage);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT);
+            layoutParams.weight = 0.18f;
+            profileImage.setLayoutParams(layoutParams);
         }
     }
-
-
 }

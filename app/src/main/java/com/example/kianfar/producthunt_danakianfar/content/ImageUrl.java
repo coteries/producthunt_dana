@@ -24,13 +24,13 @@ public class ImageUrl {
     }
 
 
-    @JsonProperty("100px")
+    @JsonProperty("220px")
     public String getImageUrl() {
         return imageUrl;
     }
 
-    @JsonProperty("100px")
-    public void serImageUrl(String imageurl) {
+    @JsonProperty("220px")
+    public void setImageUrl(String imageurl) {
         this.imageUrl = imageurl;
     }
 
