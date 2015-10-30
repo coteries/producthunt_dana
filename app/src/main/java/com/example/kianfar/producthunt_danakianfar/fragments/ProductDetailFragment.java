@@ -1,12 +1,17 @@
 package com.example.kianfar.producthunt_danakianfar.fragments;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
@@ -65,9 +70,28 @@ public class ProductDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.product_detail)).setText(mItem.getTagline());
-        }
+            ((TextView) rootView.findViewById(R.id.text_product_title)).setText(mItem.getName());
+            ((TextView) rootView.findViewById(R.id.text_product_description)).setText(mItem.getTagline());
+            ((Button) rootView.findViewById(R.id.button_upvote)).setText(Integer.toString(mItem.getVotes_count()));
 
+            ImageView profileImage1 = (ImageView) rootView.findViewById(R.id.image_profile1);
+            ImageView profileImage2 = (ImageView) rootView.findViewById(R.id.image_profile2);
+            ImageView profileImage3 = (ImageView) rootView.findViewById(R.id.image_profile3);
+
+            // use picasso to load image from disk
+            ImageView[] pics = {profileImage1, profileImage2, profileImage3};
+            for (int i = 0; i < pics.length; i++) {
+                String path = DataPool.imagePath + mItem.getMakers().get(i).getId() + ".jpg";
+                Bitmap myBitmap = BitmapFactory.decodeFile(path);
+
+                Log.d("Image Loading", "Loading image for " + mItem.getName());
+                pics[i].setImageBitmap(myBitmap);
+                pics[i].getLayoutParams().width = 80;
+                pics[i].getLayoutParams().height = 80;
+                pics[i].requestLayout();
+            }
+
+        }
         return rootView;
     }
 }

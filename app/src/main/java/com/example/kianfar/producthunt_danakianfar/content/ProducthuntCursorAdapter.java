@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 public class ProducthuntCursorAdapter extends CursorAdapter {
 
-    private int limit =0;
+    private int limit = 0;
 
     public ProducthuntCursorAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, 0);
@@ -50,12 +50,14 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
 
-        Log.d("Cursor Adapter", "Retrieved "+cursor.getCount()+" items");
+        Log.d("Cursor Adapter", "Retrieved " + cursor.getCount() + " items");
         ProductHuntLayout layout = (ProductHuntLayout) view;
 
         // collect all data
         TextView name = (TextView) view.findViewById(R.id.text_product_title), description = (TextView) view.findViewById(R.id.text_product_description);
-        ImageView profileImage = (ImageView) view.findViewById(R.id.image_profile);
+        ImageView profileImage1 = (ImageView) view.findViewById(R.id.image_profile1);
+        ImageView profileImage2 = (ImageView) view.findViewById(R.id.image_profile2);
+        ImageView profileImage3 = (ImageView) view.findViewById(R.id.image_profile3);
         Button upvoteButton = (Button) view.findViewById(R.id.button_upvote);
 
 
@@ -110,7 +112,6 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
         upvoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setBackgroundColor(context.getResources().getColor(R.color.colorButton));
                 ProductHuntLayout parentLayout = (ProductHuntLayout) v.getParent();
                 ((Button) v).setText(Integer.toString(parentLayout.getPost().getVotes_count() + 1));
                 Toast.makeText(context, "Upvote is not truly submitted to the server, since user account auth is required.", Toast.LENGTH_SHORT).show();
@@ -118,17 +119,15 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
         });
 
         // use picasso to load image from disk
-        // TODO add up to 3 photos
-        if (post.getMakers().size() > 0) {
-            String path = DataPool.imagePath + post.getMakers().get(0).getId() + ".jpg";
+        ImageView[] pics = {profileImage1, profileImage2, profileImage3};
+        for (int i = 0 ; i < post.getMakers().size() ; i++) {
+            String path = DataPool.imagePath + post.getMakers().get(i).getId() + ".jpg";
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
 
-            Log.d("Image Loading", "Loading image for "+post.getName());
-            profileImage.setImageBitmap(myBitmap);
-
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT);
-            layoutParams.weight = 0.18f;
-            profileImage.setLayoutParams(layoutParams);
+            Log.d("Image Loading", "Loading image for " + post.getName());
+            pics[i].setImageBitmap(myBitmap);
+            pics[i].getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            pics[i].getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
         }
     }
 }

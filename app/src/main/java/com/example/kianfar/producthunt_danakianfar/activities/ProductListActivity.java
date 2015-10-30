@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.fragments.ProductDetailFragment;
@@ -59,7 +60,9 @@ public class ProductListActivity extends AppCompatActivity
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.actionbar);
 
-        // Note: fragment does data handling
+        ((ProductListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.product_list))
+                .setActivateOnItemClick(true);
     }
 
     /**
@@ -68,6 +71,7 @@ public class ProductListActivity extends AppCompatActivity
      */
     @Override
     public void onItemSelected(String id) {
+        Log.d("Master View", "item selected! "+id);
         Intent detailIntent = new Intent(this, ProductDetailActivity.class);
         detailIntent.putExtra(ProductDetailFragment.ARG_ITEM_ID, id);
         startActivity(detailIntent);

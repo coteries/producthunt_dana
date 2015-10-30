@@ -1,7 +1,6 @@
 package com.example.kianfar.producthunt_danakianfar.fragments;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -38,7 +37,7 @@ public class ProductListFragment extends ListFragment {
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
-    private Callbacks mCallbacks = sDummyCallbacks;
+    private Callbacks mCallbacks ;
 
     /**
      * The current activated item position. Only used on tablets.
@@ -46,7 +45,6 @@ public class ProductListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
 
-    private SharedPreferences preferences;
     private DatabaseHelper databaseHelper;
     private static ProductListFragment currentFragment;
 
@@ -63,15 +61,6 @@ public class ProductListFragment extends ListFragment {
         public void onItemSelected(String id);
     }
 
-    /**
-     * A dummy implementation of the {@link Callbacks} interface that does
-     * nothing. Used only when this fragment is not attached to an activity.
-     */
-    private static Callbacks sDummyCallbacks = new Callbacks() {
-        @Override
-        public void onItemSelected(String id) {
-        }
-    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -81,7 +70,7 @@ public class ProductListFragment extends ListFragment {
         currentFragment = this;
     }
 
-    public static boolean offlineBrowsing = false, databaseReady = false;
+    public static boolean offlineBrowsing = false, newDataReady = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,29 +82,30 @@ public class ProductListFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        preferences = getActivity().getSharedPreferences("com.example.kianfar.producthunt_danakianfar", Activity.MODE_PRIVATE);
-//        // If the app is running for the first time, populate database
-//        if (!preferences.getBoolean("firstRun", true)) {
-//            bindDBToAdapter();
-//        }
+        mCallbacks = new Callbacks() {
+            @Override
+            public void onItemSelected(String id) {
+                Log.d("Master View Fragment", "item selected! "+id);
+                ((ProductListActivity) getActivity()).onItemSelected(id);
+            }
+        };
 
         // a boolean flag to signal offline browsing to the user
         if (offlineBrowsing) {
             Toast.makeText(currentFragment.getActivity(), "Offline browsing..", Toast.LENGTH_SHORT);
         }
 
-        // this boolean flag is set by a worker thread to signal that the data is ready once the view is created
-        if (databaseReady) {
-            currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
-            currentFragment.bindDBToAdapter();
-            getListView().invalidateViews(); // force redraw, android is buggy
-        }
-    }
+        // Note: the ProductListActivity automatically sends requests to the api for new data
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        databaseHelper.close();
+        // setup the database connection
+        currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
+        currentFragment.bindDBToAdapter();
+
+
+        if (newDataReady) {
+            refreshData();
+        }
+
     }
 
 
@@ -135,11 +125,19 @@ public class ProductListFragment extends ListFragment {
     }
 
 
+    private void refreshData() {
+        Log.d("API"," refreshing data...");
+        currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
+        currentFragment.bindDBToAdapter();
+        getListView().invalidateViews(); // force redraw, android is buggy
+    }
+
+
     /**
      * Once all data has been received from Product Hunt, this method is invoked to write the data to the database and to bind the views to the database
      */
     public static void onApiCallComplete() {
-        databaseReady = true;
+        newDataReady = true;
     }
 
 
@@ -175,15 +173,13 @@ public class ProductListFragment extends ListFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
-        // Reset the active callbacks interface to the dummy implementation.
-        mCallbacks = sDummyCallbacks;
     }
 
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
+        Log.d("Master View Fragment", "item selected! pos:"+position+", id:"+id);
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         mCallbacks.onItemSelected(DataPool.getPosts_list().get(position).getId() + "");
@@ -219,4 +215,11 @@ public class ProductListFragment extends ListFragment {
 
         mActivatedPosition = position;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        databaseHelper.close();
+    }
+
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="110dp"
+    android:layout_height="120dp"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
     android:orientation="horizontal"
@@ -12,9 +12,8 @@
     <Button
         android:id="@+id/button_upvote"
         style="@style/Product_ShortItem_Sidemargins"
-        android:layout_width="0dp"
-        android:layout_height="70dp"
-        android:layout_weight=".15"
+        android:layout_width="50dp"
+        android:layout_height="80dp"
         android:background="@color/grey"
         android:drawableTop="@drawable/ic_arrow_drop_up_black_24dp"
         android:padding="10dp"
@@ -23,9 +22,8 @@
 
     <LinearLayout
         style="@style/Product_ShortItem_Sidemargins"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight=".67"
+        android:layout_width="220dp"
+        android:layout_height="80dp"
         android:orientation="vertical">
 
 
@@ -51,26 +49,39 @@
     </LinearLayout>
 
 
-    <!--<com.makeramen.roundedimageview.RoundedImageView xmlns:app="http://schemas.android.com/apk/res-auto"-->
-        <!--android:id="@+id/image_profile"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_weight=".2"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--app:riv_border_width="0dip"-->
-        <!--android:src="@drawable/profile"-->
-        <!--app:riv_mutate_background="true"-->
-        <!--app:riv_oval="true"-->
-        <!--app:riv_tile_mode="repeat" />-->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/image_profile1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="0dp"
+            android:padding="0dp"
+            app:civ_border_color="@color/grey"
+            app:civ_border_width="1dp" />
+
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/image_profile2"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:padding="0dp"
+            app:civ_border_color="@color/grey"
+            app:civ_border_width="1dp"
+            android:layout_marginLeft="5dp" />
 
 
-    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/image_profile"
-    android:layout_width="0dp"
-    android:layout_weight=".18"
-    android:layout_height="wrap_content"
-    app:civ_border_color="#FF000000"
-    app:civ_border_width="0dp"
-    android:padding="0dp"/>
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/image_profile3"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="10dp"
+            android:padding="0dp"
+            app:civ_border_color="@color/grey"
+            app:civ_border_width="1dp" />
+
+    </FrameLayout>
 
 
 </com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout>
