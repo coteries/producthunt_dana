@@ -20,7 +20,6 @@ import com.squareup.picasso.Target;
 public class ImageHelper {
 
     private Context context;
-//    private Image2DiskTarget diskTarget;
 
 
     public ImageHelper(Context context) {
@@ -28,32 +27,17 @@ public class ImageHelper {
     }
 
 
-//    public void imageUrl2Disk(String imageurl, String userid) {
-//        diskTarget = new Image2DiskTarget(context, userid);
-//
-//        Picasso.with(context)
-//                .load(imageurl)
-//                .fit()
-//                .tag(context)
-//                .into(diskTarget);
-//    }
-
-
     public void write2disk(final Bitmap bitmap, final String userid) {
-
         // save image to disk
         new Thread(new Runnable() {
             @Override
             public void run() {
-
                 File file = new File(DataPool.imagePath + userid + ".jpg");
                 try {
-
                     File f = new File(DataPool.imagePath);
-                    if (! f.exists()) {
+                    if (!f.exists()) {
                         f.mkdir();
                     }
-
                     file.createNewFile();
                     FileOutputStream ostream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ostream);
@@ -63,7 +47,5 @@ public class ImageHelper {
                 }
             }
         }).start();
-
     }
-
 }

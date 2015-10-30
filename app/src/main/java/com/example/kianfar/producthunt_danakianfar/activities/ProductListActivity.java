@@ -34,8 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * {@link ProductListFragment.Callbacks} interface
  * to listen for item selections.
  */
-public class ProductListActivity extends AppCompatActivity
-        implements ProductListFragment.Callbacks {
+public class ProductListActivity extends AppCompatActivity {
 
 
     public static Activity context;
@@ -69,7 +68,7 @@ public class ProductListActivity extends AppCompatActivity
      * Callback method from {@link ProductListFragment.Callbacks}
      * indicating that the item with the given ID was selected.
      */
-    @Override
+
     public void onItemSelected(String id) {
         Log.d("Master View", "item selected! "+id);
         Intent detailIntent = new Intent(this, ProductDetailActivity.class);

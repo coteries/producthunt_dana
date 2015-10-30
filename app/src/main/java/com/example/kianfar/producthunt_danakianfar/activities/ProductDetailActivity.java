@@ -1,15 +1,29 @@
 package com.example.kianfar.producthunt_danakianfar.activities;
 
-import android.support.v7.app.ActionBar;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.kianfar.producthunt_danakianfar.DataPool;
+import com.example.kianfar.producthunt_danakianfar.content.Post;
+import com.example.kianfar.producthunt_danakianfar.content.User;
 import com.example.kianfar.producthunt_danakianfar.fragments.ProductDetailFragment;
 import com.example.kianfar.producthunt_danakianfar.R;
+import com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * An activity representing a single Product detail screen. This
@@ -22,42 +36,49 @@ import com.example.kianfar.producthunt_danakianfar.R;
  */
 public class ProductDetailActivity extends AppCompatActivity {
 
+    public static final String ARG_ITEM_ID = "item_id";
 
-    public ProductDetailActivity(){}
+    private Post mItem;
+
+    public ProductDetailActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle(getTitle());
 
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.actionbar);
+        String id = getIntent().getStringExtra(ARG_ITEM_ID);
+        if (id != null) {
+            mItem = DataPool.getPosts_map().get(id);
+        }
 
-        // Show the Up button in the action bar.
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Populate UI
+        if (mItem != null) {
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
-        if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putString(ProductDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(ProductDetailFragment.ARG_ITEM_ID));
-            ProductDetailFragment fragment = new ProductDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.product_detail_container, fragment)
-                    .commit();
+            ((ProductHuntLayout) findViewById(R.id.phlayout_container)).setPostAndBindData(mItem);
+
+            int diffHours = 0, diffMinutes = 0;
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("Via " + mItem.getUser().getName());
+
+            try {
+                // time difference
+                Date postDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSz").parse(mItem.getCreatedAt());
+                long diffMSec = new Date().getTime() - postDate.getTime();
+                diffHours = (int) (diffMSec / (1000 * 60 * 60));
+                diffMinutes = (int) (diffMSec / (1000 * 60));
+
+                buffer.append(" " + (diffHours == 0 ? diffMinutes : diffHours) + " hours ago."); // use minutes or hours
+            } catch (Exception e) {
+                Log.d("Date Parsing", "Unable to parse date: " + mItem.getCreatedAt());
+            } finally {
+                ((TextView) findViewById(R.id.text_user_hour)).setText(buffer.toString());
+            }
         }
     }
 
@@ -65,13 +86,6 @@ public class ProductDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. Use NavUtils to allow users
-            // to navigate up one level in the application structure. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
             NavUtils.navigateUpTo(this, new Intent(this, ProductListActivity.class));
             return true;
         }

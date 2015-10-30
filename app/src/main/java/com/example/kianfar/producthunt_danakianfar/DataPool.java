@@ -9,6 +9,7 @@ import com.example.kianfar.producthunt_danakianfar.activities.ProductListActivit
 import com.example.kianfar.producthunt_danakianfar.content.OauthResponse;
 import com.example.kianfar.producthunt_danakianfar.content.Post;
 import com.example.kianfar.producthunt_danakianfar.fragments.ProductListFragment;
+import com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +36,8 @@ public class DataPool {
     private static ObjectMapper mapper = new ObjectMapper();
     public static final String imagePath = Environment.getExternalStorageDirectory().getPath() + "/producthunt_kianfar/";
     private static List<Post> posts_list = new ArrayList<>();
-    private static Map<Integer, Post> posts_map = new HashMap<>();
+    private static Map<String, Post> posts_map = new HashMap<>();
+    private static Map<String, ProductHuntLayout> post_views = new HashMap<>();
 
 
     public static boolean init() {
@@ -75,20 +77,13 @@ public class DataPool {
         return posts_list;
     }
 
-    public static Map<Integer, Post> getPosts_map() {
+    public static Map<String, Post> getPosts_map() {
         return posts_map;
     }
 
-    public static void setPostsList(List<Post> postsList) {
-        if (posts_list.isEmpty()) {
-            posts_list = postsList;
-        }
+    public static Map<String, ProductHuntLayout> getPost_views() {
+        return post_views;
     }
 
-    public static void setPostsMap(Map<Integer, Post> postsMap) {
-        if (posts_map.isEmpty()) {
-            posts_map = postsMap;
-        }
-    }
 
 }

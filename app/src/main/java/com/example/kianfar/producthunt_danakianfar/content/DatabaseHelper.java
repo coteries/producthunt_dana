@@ -20,11 +20,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "CREATE UNIQUE INDEX user_index ON User (_id) ; " ,
             "CREATE UNIQUE INDEX post_index ON Post (_id) ; " ,
             "CREATE UNIQUE INDEX maker_index ON Maker (user_id, post_id);"};
-    public static final String select_latest_products =    "SELECT p._id, p.votes_count, p.name, p.tagline, p.day_, p.created_at, p.redirect_url, p.user_id, u2.name as user_name, u._id as makerid, u.name as makername, u.imageurl as makerimage " +
-            "FROM Post p JOIN Maker m JOIN User u JOIN User u2 on p._id = m.post_id AND u._id = m.user_id AND p.user_id = u2._id ";// +
-//            "WHERE p.created_at > %s " +
-//            "ORDER BY p.created_at " +
-//            "LIMIT 20";
+    public static final String select_latest_products =    "SELECT p._id, p.votes_count, p.name, p.tagline, p.day_, p.created_at, p.redirect_url, p.user_id, u2.name as user_name, \n" +
+            "ifnull(group_concat(distinct u._id), null) as makerid,  ifnull(group_concat (distinct u.name),null) as makername, ifnull(group_concat(distinct  u.imageurl),null) as makerimage \n" +
+                        "FROM Post p " +
+                            "INNER JOIN User u2 ON u2._id = p.user_id " +
+                            "LEFT JOIN Maker m  ON p._id = m.post_id " +
+                            "INNER JOIN User u ON m.user_id = u._id " +
+                            "GROUP BY p._id";
 
 
     private final String drop_all_tables = "DROP TABLE IF EXISTS User; " +

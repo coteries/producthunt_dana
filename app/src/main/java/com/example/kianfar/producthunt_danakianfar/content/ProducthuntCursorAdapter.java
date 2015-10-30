@@ -4,9 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,18 +17,16 @@ import android.widget.Toast;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.R;
+import com.example.kianfar.producthunt_danakianfar.fragments.ProductListFragment;
 import com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 
 public class ProducthuntCursorAdapter extends CursorAdapter {
 
     private int limit = 0;
+    private int previousId;
 
     public ProducthuntCursorAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, 0);
@@ -43,25 +38,18 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
     }
 
 //    @Override
-//    public int getCount() {
+//    public int getCount() { // limits the number of items that are accessed,
+//                              but this is a hard limit. to get an infinitely scrolling list, the cursor needs to be replaced
 //        return 20;
 //    }
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
 
+        ProductHuntLayout productHuntLayout = (ProductHuntLayout) view;
+        productHuntLayout.setOnClickListener(ProductListFragment.currentFragment);
+
         Log.d("Cursor Adapter", "Retrieved " + cursor.getCount() + " items");
-        ProductHuntLayout layout = (ProductHuntLayout) view;
-
-        // collect all data
-        TextView name = (TextView) view.findViewById(R.id.text_product_title), description = (TextView) view.findViewById(R.id.text_product_description);
-        ImageView profileImage1 = (ImageView) view.findViewById(R.id.image_profile1);
-        ImageView profileImage2 = (ImageView) view.findViewById(R.id.image_profile2);
-        ImageView profileImage3 = (ImageView) view.findViewById(R.id.image_profile3);
-        Button upvoteButton = (Button) view.findViewById(R.id.button_upvote);
-
-
-//        "SELECT p.id, p.votes_count, p.name, p.tagline, p.day_, p.created_at, p.redirect_url, p.user_id, u2.name as user_name, u.id as makerid, u.name as makername, u.imageurl as makerimage";
         Post post = new Post(
                 cursor.getInt(0), // id
                 cursor.getInt(1), // votes_count
@@ -75,59 +63,102 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
                         null),
                 new ArrayList<User>());
 
+        // if there are makers, split them via "," since they are aggregated
+        if (!(cursor.getString(9) == null || cursor.getString(9).equalsIgnoreCase(null))) {
+            String[] makerIds = cursor.getString(9).split(","), makerNames = cursor.getString(10).split(","), makerUrls = cursor.getString(11).split(",");
+            for (int i = 0; i < makerIds.length; i++) {
+                post.getMakers().add(new User(Integer.valueOf(makerIds[i]), makerNames[i], new ImageUrl(makerUrls[i])));
+            }
+        }
+
+
+
+        // If not already in memory, Add to datapool
+        if (!DataPool.getPosts_map().containsKey(post.getId())) {
+            DataPool.getPosts_map().put(String.valueOf(post.getId()), post);
+            DataPool.getPosts_list().add(post);
+        }
+
+        // This binds the object to the view
+        productHuntLayout.setPostAndBindData(post);
+
+        // add to map of views on main screens
+        DataPool.getPost_views().put(String.valueOf(productHuntLayout.getPost().getId()), productHuntLayout);
+    }
+
+}
+
+    /*
+    @Override
+    public void bindView(View view, final Context context, Cursor cursor) {
+
+
+            The cursor performs a query that has a repeating section. This implies that multiples rows
+            in the cursor will be dedicated to the same record.
+            This is a problem since this adapter treats every row as a new record. Without changing this,
+            the app would show duplicate posts.
+            To counter this, we keep track of the id of the previous row. this way, we can avoid adding this view.
+
+    if (cursor.getInt(0) != previousId) {// filter out unique rows only
+
+        ProductHuntLayout productHuntLayout = (ProductHuntLayout) view.findViewById(R.id.phlayout_container);
+        productHuntLayout.setOnClickListener(ProductListFragment.currentFragment);
+
+        Log.d("Cursor Adapter", "Retrieved " + cursor.getCount() + " items");
+        Post post = new Post(
+                cursor.getInt(0), // id
+                cursor.getInt(1), // votes_count
+                cursor.getString(2), // name
+                cursor.getString(3), // tagline
+                cursor.getString(4), // day
+                cursor.getString(5), //created at
+                cursor.getString(6), // redirect url
+                new User(cursor.getInt(7), // user id
+                        cursor.getString(8), // user name
+                        null),
+                new ArrayList<User>());
+
+
+        previousId = post.getId(); // to keep track of the last post. this helps to keep
+
         // TODO this is buggy
         // add makers to post object
-        while (true) {
+        do {
 
-            // Since there is a 1-many relationship between product and maker, we need to try to find
-            // all repeating sections
-            cursor.moveToNext();
+            if (cursor.getInt(0) == post.getId()) { // if post id of current row in cursor is the same as the next one
 
-            if (cursor.getPosition() < cursor.getCount() && cursor.getInt(0) == post.getId()) { // if the next row in the cursor has the same post id, then continue
+                post.getMakers().add(
+                        new User(
+                                cursor.getInt(9),               // maker id
+                                cursor.getString(10),           // maker name
+                                new ImageUrl(cursor.getString(11)))); // image url
 
-                post.getMakers().add(new User(
-                        cursor.getInt(9),
-                        cursor.getString(10),
-                        new ImageUrl(cursor.getString(11))));
             } else { // otherwise its not the same post, break loop and move on
                 cursor.moveToPrevious();
                 break;
             }
+            cursor.moveToNext();
         }
+
+
+        while (cursor.getPosition() < cursor.getCount());
 
         // If not already in memory, Add to datapool
         if (!DataPool.getPosts_map().containsKey(post.getId())) {
-            DataPool.getPosts_map().put(post.getId(), post);
+            DataPool.getPosts_map().put(String.valueOf(post.getId()), post);
             DataPool.getPosts_list().add(post);
         }
 
-        // bind data to view
-        name.setText(post.getName());
-        description.setText(post.getTagline());
-        upvoteButton.setText(post.getVotes_count() + "");
+        // This binds the object to the view
+        productHuntLayout.setPostAndBindData(post);
 
-        layout.setPost(post);
+        // add to map of views on main screens
+        DataPool.getPost_views().put(String.valueOf(productHuntLayout.getPost().getId()), productHuntLayout);
+    }
+    else { // duplicate row. destory view
+        view.
 
-        // set button on click listener
-        upvoteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProductHuntLayout parentLayout = (ProductHuntLayout) v.getParent();
-                ((Button) v).setText(Integer.toString(parentLayout.getPost().getVotes_count() + 1));
-                Toast.makeText(context, "Upvote is not truly submitted to the server, since user account auth is required.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // use picasso to load image from disk
-        ImageView[] pics = {profileImage1, profileImage2, profileImage3};
-        for (int i = 0 ; i < post.getMakers().size() ; i++) {
-            String path = DataPool.imagePath + post.getMakers().get(i).getId() + ".jpg";
-            Bitmap myBitmap = BitmapFactory.decodeFile(path);
-
-            Log.d("Image Loading", "Loading image for " + post.getName());
-            pics[i].setImageBitmap(myBitmap);
-            pics[i].getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
-            pics[i].getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        }
     }
 }
+     */
+

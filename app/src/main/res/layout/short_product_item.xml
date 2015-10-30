@@ -34,7 +34,7 @@
             android:layout_marginBottom="5dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="Shark Repellent Bat Spray"
+            android:text="Title"
             android:textSize="22sp" />
 
         <TextView
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="2"
-            android:text="Robin!! Fetch me the shark repellent bat spray!"
+            android:text="Description"
             android:textSize="16sp" />
 
     </LinearLayout>

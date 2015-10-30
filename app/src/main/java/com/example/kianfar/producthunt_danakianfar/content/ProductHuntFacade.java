@@ -38,8 +38,12 @@ public class ProductHuntFacade {
 
 
         imageHelper = new ImageHelper(context);
-        for (File f : new File(DataPool.imagePath).listFiles()) {
-            downloadedImages.add(f.getName().replace(".jpg",""));
+        File imagePath = new File(DataPool.imagePath);
+
+        if (imagePath.exists()) {
+            for (File f : imagePath.listFiles()) {
+                downloadedImages.add(f.getName().replace(".jpg", ""));
+            }
         }
 
         // setup request queue. Volley handles network calls in the background
@@ -59,23 +63,16 @@ public class ProductHuntFacade {
                             latestPosts = mapper.readValue(response, new TypeReference<PostsResponse>() {
                             });
 
-                            List<Post> postList = new ArrayList<>();
-                            Map<Integer, Post> postMap = new HashMap<Integer, Post>();
-
                             // Arrange in lists
                             for (Post post : latestPosts.getPosts()) {
-                                postList.add(post);
-                                postMap.put(post.getId(), post);
+
+                                if (!DataPool.getPosts_map().containsKey(post.getId())) {
+                                    DataPool.getPosts_map().put(String.valueOf(post.getId()), post);
+                                    DataPool.getPosts_list().add(post);
+                                }
                             }
 
-                            // Put data in memory
-                            DataPool.clearData();
-                            DataPool.setPostsList(postList);
-                            DataPool.setPostsMap(postMap);
-
-                            Log.d("Product Hunt API", "Obtained " + postList.size() + " posts");
-//                            // call routine to store to db
-//                            new DatabaseHelper(context).storePostsInDB(DataPool.getPosts_list());
+                            Log.d("Product Hunt API", "Number of items in memory: " + DataPool.getPosts_list().size());
 
                             // fetch images from server
                             fetchImages();
@@ -113,8 +110,9 @@ public class ProductHuntFacade {
         for (Post post : DataPool.getPosts_list()) {
             for (User user : post.getMakers()) {
                 String temp = user.getImageUrl().getImageUrl();
-                if (temp.length() > 0){
-                    if (! downloadedImages.contains(user.getId())) { // only download image if not on device already
+                if (temp.length() > 0) {
+                    if (!downloadedImages.contains(user.getId())) { // only download image if not on device already
+                        Log.d("Product Hunt API", "calling for image " + user.getId());
                         sendVolleyImageRequest(temp, user.getId() + "");
                     }
                 }
@@ -129,17 +127,18 @@ public class ProductHuntFacade {
      * @param url    url pointing to where image is stored
      * @param userid the id of the user will be used as the filename for the image
      */
-    private void sendVolleyImageRequest(String url, final String userid) {
+    private void sendVolleyImageRequest(final String url, final String userid) {
         ProductHuntImageRequest imgRequest = new ProductHuntImageRequest(url,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
+                        Log.d("Product Hunt API", "image received!" + userid);
                         imageHelper.write2disk(response, userid);
                     }
                 }, 0, 0, ImageView.ScaleType.FIT_XY, Bitmap.Config.ARGB_8888, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                mImageView.setBackgroundColor(Color.parseColor("#ff0000"));
+                Log.d("Product Hunt API", "Unable to get image: " + url);
                 error.printStackTrace();
             }
         });
