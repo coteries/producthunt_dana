@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="110dp"
-    android:orientation="horizontal"
-    android:paddingBottom="20dp"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
+    android:orientation="horizontal"
+    android:paddingBottom="20dp"
     android:paddingTop="20dp"
     android:weightSum="1">
 
@@ -13,20 +13,20 @@
         android:id="@+id/button_upvote"
         style="@style/Product_ShortItem_Sidemargins"
         android:layout_width="0dp"
-        android:layout_weight=".15"
         android:layout_height="70dp"
+        android:layout_weight=".15"
         android:background="@color/grey"
         android:drawableTop="@drawable/ic_arrow_drop_up_black_24dp"
         android:padding="10dp"
-        android:text="0"
+        android:text="a"
         android:textSize="20sp" />
 
     <LinearLayout
         style="@style/Product_ShortItem_Sidemargins"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight=".67">
+        android:layout_weight=".67"
+        android:orientation="vertical">
 
 
         <TextView
@@ -45,20 +45,32 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="2"
-            android:textSize="16sp"
-            android:text="Robin!! Fetch me the shark repellent bat spray!" />
+            android:text="Robin!! Fetch me the shark repellent bat spray!"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
+
+    <!--<com.makeramen.roundedimageview.RoundedImageView xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/image_profile"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_weight=".2"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:riv_border_width="0dip"-->
+        <!--android:src="@drawable/profile"-->
+        <!--app:riv_mutate_background="true"-->
+        <!--app:riv_oval="true"-->
+        <!--app:riv_tile_mode="repeat" />-->
+
+
     <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/image_profile"
-        android:layout_width="0dp"
-        android:layout_weight=".18"
-        android:layout_height="wrap_content"
-        android:src="@drawable/profile"
-        app:civ_border_color="#FF000000"
-        app:civ_border_width="0dp"
-        android:padding="0dp"/>
+    android:id="@+id/image_profile"
+    android:layout_width="0dp"
+    android:layout_weight=".18"
+    android:layout_height="wrap_content"
+    app:civ_border_color="#FF000000"
+    app:civ_border_width="0dp"
+    android:padding="0dp"/>
 
 
-</LinearLayout>
+</com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout>

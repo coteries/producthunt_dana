@@ -1,4 +1,3 @@
-
 package com.example.kianfar.producthunt_danakianfar.content;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -6,34 +5,29 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "220px"
+        "posts"
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ImageUrl {
+public class PostsResponse {
 
-
-    @JsonProperty("220px")
-    private String imageUrl;
-
-    public ImageUrl() {}
-
-    public ImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public PostsResponse() {
     }
 
+    @JsonProperty("posts")
+    private List<Post> posts = new ArrayList<Post>();
 
-    @JsonProperty("100px")
-    public String getImageUrl() {
-        return imageUrl;
+    @JsonProperty("posts")
+    public List<Post> getPosts() {
+        return posts;
     }
 
-    @JsonProperty("100px")
-    public void serImageUrl(String imageurl) {
-        this.imageUrl = imageurl;
+    @JsonProperty("posts")
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
-
-
-
 }

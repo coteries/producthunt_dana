@@ -2,51 +2,66 @@ package com.example.kianfar.producthunt_danakianfar.content;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.kianfar.producthunt_danakianfar.DataPool;
 
 import java.util.List;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private final String create_script = "CREATE TABLE USER (id int, name varchar(255), imageurl varchar(255), primary key (id)); " +
-            "CREATE TABLE POST (id int, votes_count int, name varchar(255), tagline varchar(255), day_ varchar(255), created_at varchar(255), redirect_url varchar(255), user_id int, foreign key (user_id) references USER (id), primary key (id)); " +
-            "CREATE TABLE MAKER (id int, post_id int, user_id int, foreign key (post_id) references POST (id), foreign key (user_id) references USER (id), primary key (id));" +
-            "CREATE INDEX user_index ON USER (id);" +
-            "CREATE INDEX post_index ON POST (id);" +
-            "CREATE INDEX maker_index ON MAKER (user_id, post_id);";
-    public static final String select_latest_products =    "SELECT p.id, p.votes_count, p.name, p.tagline, p.day_, p.created_at, p.redirect_url, p.user_id, u2.name as user_name, u.id as makerid, u.name as makername, u.imageurl as makerimage " +
-            "FROM POST p JOIN MAKER m JOIN USER u JOIN USER u2 on p.id = m.post_id AND u.id = m.user_id AND p.user_id = u2.id";
+    private final String[] create_script = {"" +
+            "CREATE TABLE Post (_id INTEGER PRIMARY KEY, votes_count INTEGER, name TEXT, tagline TEXT, day_ TEXT, created_at TEXT, redirect_url TEXT, user_id INTEGER, foreign key (user_id) references User (_id)) ;",
+            "CREATE TABLE User (_id INTEGER PRIMARY KEY, name TEXT, imageurl TEXT) ; ",
+            "CREATE TABLE Maker(_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, user_id INTEGER, foreign key (post_id) references Post (_id), foreign key (user_id) references User (_id)) ;",
+            "CREATE UNIQUE INDEX user_index ON User (_id) ; " ,
+            "CREATE UNIQUE INDEX post_index ON Post (_id) ; " ,
+            "CREATE UNIQUE INDEX maker_index ON Maker (user_id, post_id);"};
+    public static final String select_latest_products =    "SELECT p._id, p.votes_count, p.name, p.tagline, p.day_, p.created_at, p.redirect_url, p.user_id, u2.name as user_name, u._id as makerid, u.name as makername, u.imageurl as makerimage " +
+            "FROM Post p JOIN Maker m JOIN User u JOIN User u2 on p._id = m.post_id AND u._id = m.user_id AND p.user_id = u2._id";
 
 
-    private final String drop_all_tables = "select 'drop table ' || name || ';' from sqlite_master where type = 'table';";
+    private final String drop_all_tables = "DROP TABLE IF EXISTS User; " +
+            "DROP TABLE IF EXISTS Post; " +
+            "DROP TABLE IF EXISTS Maker";
 
 
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "producthunt_kianfar.db";
+    public static final String DATABASE_NAME = "producthunt.db";
     private Context context;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
+//        getReadableDatabase().close(); // force creates the db
     }
 
+    @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(create_script);
+        Log.d("SQLite","Creating tables...");
+        db.execSQL(create_script[0]);
+        db.execSQL(create_script[1]);
+        db.execSQL(create_script[2]);
+
+        Cursor cursor = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';", null);
+//        int count = cursor.getInt(0);
+
     }
 
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(drop_all_tables);
-        db.execSQL(create_script);
+//        db.delete("USER", null, null);
+//        db.delete("POST", null, null);
+//        db.delete("MAKER", null, null);
         onCreate(db);
     }
 
+    @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
@@ -60,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         for (Post post : posts) {
             insertPost(post, db);
         }
-        db.close();
+        databaseHelper.close();
 
         Log.d("Database Helper", "Done storing to database.");
     }
@@ -70,7 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void insertPost(Post post, SQLiteDatabase db) {
         // put post
         ContentValues values = new ContentValues();
-        values.put("id", post.getId());
+        values.put("_id", post.getId());
         values.put("name", post.getName());
         values.put("votes_count", post.getVotes_count());
         values.put("tagline", post.getTagline());
@@ -79,22 +94,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("redirect_url", post.getRedirectUrl());
         values.put("user_id", post.getUser().getId());
         values.put("tagline", post.getTagline());
-        db.insert("POST", null, values);
+        db.insertWithOnConflict("Post", null, values, SQLiteDatabase.CONFLICT_IGNORE);
 
         // put user
         values = new ContentValues();
-        values.put("id", post.getUser().getId());
+        values.put("_id", post.getUser().getId());
         values.put("name", post.getUser().getName());
-        values.put("imageurl", post.getUser().getImageUrl().get100px());
-        db.insert("USER", null, values);
+        values.put("imageurl", post.getUser().getImageUrl().getImageUrl());
+        db.insertWithOnConflict("User", null, values, SQLiteDatabase.CONFLICT_IGNORE);
 
         // put makers
         for (User user : post.getMakers()) {
             values = new ContentValues();
-            values.put("id", user.getId());
+            values.put("_id", user.getId());
             values.put("name", user.getName());
-            values.put("imageurl", user.getImageUrl().get100px());
-            db.insert("USER", null, values);
+            values.put("imageurl", user.getImageUrl().getImageUrl());
+            db.insertWithOnConflict("User", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         }
 
         // put connections
@@ -102,7 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values = new ContentValues();
             values.put("post_id", post.getId());
             values.put("user_id", user.getId());
-            db.insert("MAKER", null, values);
+            db.insertWithOnConflict("Maker", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         }
     }
 

@@ -24,7 +24,7 @@ public class ProductHuntImageRequest extends ImageRequest{
     @Override
     public Map getHeaders() throws AuthFailureError {
         Map headers = new HashMap();
-        headers.put("Autorization", "Bearer "+ DataPool.access_token);
+        headers.put("Authorization", "Bearer "+ DataPool.access_token);
         return headers;
     }
 }

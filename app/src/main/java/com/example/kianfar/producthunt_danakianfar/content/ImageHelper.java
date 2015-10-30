@@ -41,8 +41,6 @@ public class ImageHelper {
 
     public void write2disk(final Bitmap bitmap, final String userid) {
 
-        Log.d("ImageHelper", "Writing bitmap to disk, id: " + userid);
-
         // save image to disk
         new Thread(new Runnable() {
             @Override
@@ -50,6 +48,12 @@ public class ImageHelper {
 
                 File file = new File(DataPool.imagePath + userid + ".jpg");
                 try {
+
+                    File f = new File(DataPool.imagePath);
+                    if (! f.exists()) {
+                        f.mkdir();
+                    }
+
                     file.createNewFile();
                     FileOutputStream ostream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ostream);

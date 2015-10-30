@@ -3,6 +3,7 @@ package com.example.kianfar.producthunt_danakianfar.content;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
@@ -13,9 +14,11 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kianfar.producthunt_danakianfar.DataPool;
 import com.example.kianfar.producthunt_danakianfar.R;
+import com.example.kianfar.producthunt_danakianfar.views.ProductHuntLayout;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -37,7 +40,9 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
+
+        ProductHuntLayout layout = (ProductHuntLayout) view;
 
         // collect all data
         TextView name = (TextView) view.findViewById(R.id.text_product_title), description = (TextView) view.findViewById(R.id.text_product_description);
@@ -66,7 +71,8 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
             // all repeating sections
             cursor.moveToNext();
 
-            if (cursor.getInt(0) == post.getId()) { // if the next row in the cursor has the same post id, then continue
+
+            if (cursor.getPosition() < cursor.getCount() && cursor.getInt(0) == post.getId()) { // if the next row in the cursor has the same post id, then continue
 
                 post.getMakers().add(new User(
                         cursor.getInt(9),
@@ -76,6 +82,7 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
                 cursor.moveToPrevious();
                 break;
             }
+
         }
 
 
@@ -88,16 +95,37 @@ public class ProducthuntCursorAdapter extends CursorAdapter {
         // bind data to view
         name.setText(post.getName());
         description.setText(post.getTagline());
-        upvoteButton.setText(post.getVotes_count());
+        upvoteButton.setText(post.getVotes_count() + "");
+
+        layout.setPost(post);
+
+        // set button on click listener
+        upvoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setBackgroundColor(context.getResources().getColor(R.color.colorButton));
+                ProductHuntLayout parentLayout = (ProductHuntLayout) v.getParent();
+                ((Button) v).setText(Integer.toString(parentLayout.getPost().getVotes_count() + 1));
+                Toast.makeText(context, "Upvote is not truly submitted to the server, since user account auth is required.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         // use picasso to load image from disk
         // TODO add up to 3 photos
         if (post.getMakers().size() > 0) {
-            Picasso.with(context)
-                    .load(DataPool.imagePath + post.getMakers().get(0).getId() + ".jpg")
-                    .fit()
-                    .tag(context)
-                    .into(profileImage);
+            String path = DataPool.imagePath + post.getMakers().get(0).getId() + ".jpg";
+
+            Bitmap myBitmap = BitmapFactory.decodeFile(path);
+
+            profileImage.setImageBitmap(myBitmap);
+
+
+//            Picasso.with(context)
+//                    .load(path)
+//                    .fit()
+//                    .tag(context)
+//                    .into(profileImage);
         }
     }
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
@@ -75,17 +76,13 @@ public class ProductListFragment extends ListFragment {
      * fragment (e.g. upon screen orientation changes).
      */
     public ProductListFragment() {
+        currentFragment = this;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        currentFragment = this;
-
-        // call product hunt to get items
-        ProductHuntFacade facade = new ProductHuntFacade();
-        facade.fetchLatestPosts(getActivity());
+        databaseHelper = new DatabaseHelper(getActivity());
     }
 
     @Override
@@ -99,14 +96,38 @@ public class ProductListFragment extends ListFragment {
 //        }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        databaseHelper.close();
+    }
 
+
+    /**
+     * Once the access_token is received, this method is called by its parent activity to get data from producthunt
+     */
+    public static void fetchData() {
+        // call product hunt to get items
+        ProductHuntFacade facade = new ProductHuntFacade();
+        facade.fetchLatestPosts(currentFragment.getActivity());
+    }
+
+
+    /**
+     * Once all data has been received from Product Hunt, this method is invoked to write the data to the database and to bind the views to the database
+     */
     public static void onApiCallComplete() {
+        Log.d("Product Hunt API", "All data received from api, now proceeding to write to db and bind adapters");
         currentFragment.databaseHelper.storePostsInDB(DataPool.getPosts_list());
         currentFragment.bindDBToAdapter();
     }
 
 
+    /**
+     * Sets up the list adapter
+     */
     public void bindDBToAdapter() {
+        Log.d("Adapter", "Setting up adapter");
         SQLiteDatabase db = new DatabaseHelper(getActivity()).getReadableDatabase();
         // do select query on data
         Cursor cursor = db.rawQuery(DatabaseHelper.select_latest_products, null);
@@ -114,6 +135,7 @@ public class ProductListFragment extends ListFragment {
         // bind everything together
         ProducthuntCursorAdapter adapter = new ProducthuntCursorAdapter(getActivity(), cursor, 0);
         setListAdapter(adapter);
+        adapter.notifyDataSetChanged(); // force it to render
     }
 
 

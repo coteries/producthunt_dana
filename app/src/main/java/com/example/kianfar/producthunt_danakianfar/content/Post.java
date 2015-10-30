@@ -4,6 +4,7 @@ package com.example.kianfar.producthunt_danakianfar.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "makers",
         "votes_count"
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Post {
 
     @JsonProperty("id")
@@ -28,9 +30,9 @@ public class Post {
     @JsonProperty("votes_count")
     private Integer votes_count;
     @JsonProperty("name")
-    private String name;
+    private String name="";
     @JsonProperty("tagline")
-    private String tagline;
+    private String tagline="";
     @JsonProperty("day")
     private String day;
     @JsonProperty("created_at")

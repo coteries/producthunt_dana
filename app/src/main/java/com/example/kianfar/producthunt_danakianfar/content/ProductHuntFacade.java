@@ -10,14 +10,13 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.kianfar.producthunt_danakianfar.DataPool;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.example.kianfar.producthunt_danakianfar.fragments.ProductListFragment;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,19 +29,24 @@ public class ProductHuntFacade {
     private static RequestQueue volleyRequestQueue;
     private ImageHelper imageHelper;
     private Context context;
+    private List<String> downloadedImages = new ArrayList<>();
 
     public void fetchLatestPosts(final Context context) {
 
         Log.d("Product Hunt API", "Calling API to get latest posts..");
-
         this.context = context;
+
+
         imageHelper = new ImageHelper(context);
+        for (File f : new File(DataPool.imagePath).listFiles()) {
+            downloadedImages.add(f.getName().replace(".jpg",""));
+        }
 
         // setup request queue. Volley handles network calls in the background
         volleyRequestQueue = Volley.newRequestQueue(context);
 
         // Request a string response
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, DataPool.posts_url,
+        ProductHuntStringRequest stringRequest = new ProductHuntStringRequest(Request.Method.GET, DataPool.posts_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) { //after the api responds
@@ -69,12 +73,14 @@ public class ProductHuntFacade {
                             DataPool.setPostsList(postList);
                             DataPool.setPostsMap(postMap);
 
-
+                            Log.d("Product Hunt API", "Obtained " + postList.size() + " posts");
 //                            // call routine to store to db
 //                            new DatabaseHelper(context).storePostsInDB(DataPool.getPosts_list());
 
                             // fetch images from server
                             fetchImages();
+
+                            ProductListFragment.onApiCallComplete(); // store to db and bind views to db
 
                         } catch (Exception e) {
                             Log.e("Posts Volley Call", "Unsuccessful, response from producthunt: \n" + e.getMessage());
@@ -102,12 +108,16 @@ public class ProductHuntFacade {
 
 
     private void fetchImages() {
+        Log.d("Product Hunt API", "Fetching images from Product hunt...");
         // for each post, get the image urls of its makers
         for (Post post : DataPool.getPosts_list()) {
             for (User user : post.getMakers()) {
-                String temp = user.getImageUrl().get100px();
-                if (temp.length() > 0)
-                    sendVolleyRequest(temp, user.getId()+"");
+                String temp = user.getImageUrl().getImageUrl();
+                if (temp.length() > 0){
+                    if (! downloadedImages.contains(user.getId())) { // only download image if not on device already
+                        sendVolleyImageRequest(temp, user.getId() + "");
+                    }
+                }
             }
         }
     }
@@ -115,10 +125,11 @@ public class ProductHuntFacade {
 
     /**
      * Fetch Images from the ProductHunt API via the Volley networking library
-     * @param url url pointing to where image is stored
+     *
+     * @param url    url pointing to where image is stored
      * @param userid the id of the user will be used as the filename for the image
      */
-    private void sendVolleyRequest(String url, final String userid) {
+    private void sendVolleyImageRequest(String url, final String userid) {
         ProductHuntImageRequest imgRequest = new ProductHuntImageRequest(url,
                 new Response.Listener<Bitmap>() {
                     @Override
@@ -136,28 +147,5 @@ public class ProductHuntFacade {
         volleyRequestQueue.add(imgRequest);
     }
 
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonPropertyOrder({
-            "posts"
-    })
-    private class PostsResponse {
-
-        private PostsResponse() {
-        }
-
-        @JsonProperty("posts")
-        private List<Post> posts = new ArrayList<Post>();
-
-        @JsonProperty("posts")
-        public List<Post> getPosts() {
-            return posts;
-        }
-
-        @JsonProperty("posts")
-        public void setPosts(List<Post> posts) {
-            this.posts = posts;
-        }
-    }
 
 }

@@ -1,6 +1,7 @@
 
 package com.example.kianfar.producthunt_danakianfar.content;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "name",
         "image_url"
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
     @JsonProperty("id")
@@ -20,6 +22,8 @@ public class User {
     @JsonProperty("image_url")
     private ImageUrl imageUrl;
 
+
+    public User() {}
 
     public User(Integer id, String name, ImageUrl imageUrl) {
         this.id = id;

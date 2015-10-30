@@ -4,7 +4,10 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.example.kianfar.producthunt_danakianfar.Utils.HttpUtils;
+import com.example.kianfar.producthunt_danakianfar.content.OauthResponse;
 import com.example.kianfar.producthunt_danakianfar.content.Post;
+import com.example.kianfar.producthunt_danakianfar.fragments.ProductListFragment;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -26,7 +29,7 @@ public class DataPool {
     public static String access_token = "";
     public static final String developer_token = "624e8c5d980163ec65ae4715d1b4819d7ff1a45e4d7af989ba82b54845a4a7b6";
     public static final String oauth_url = "https://api.producthunt.com/v1/oauth/token?client_id=%s&client_secret=%s&grant_type=client_credentials",
-            posts_url = "https://api.producthunt.com/v1/posts_map/all?per_page=50";
+            posts_url = "https://api.producthunt.com/v1/posts/all?per_page=50";
     private static ObjectMapper mapper = new ObjectMapper();
     public static final String imagePath = Environment.getExternalStorageDirectory().getPath() + "/producthunt_kianfar/";
     private static List<Post> posts_list = new ArrayList<>();
@@ -47,8 +50,9 @@ public class DataPool {
                     OauthResponse accessTokenResponse = mapper.readValue(response, new TypeReference<OauthResponse>() {
                     });
 
-                    access_token = accessTokenResponse.accessToken;
+                    access_token = accessTokenResponse.getAccessToken();
                     Log.d("DataPool", "Access token obtained.");
+                    ProductListFragment.fetchData();
 
                 } catch (IOException e) {
                     Log.e("Http Access Token", e.getMessage());
@@ -57,7 +61,7 @@ public class DataPool {
             }
         }).start();
 
-        return true;
+        return false;
     }
 
     public static void clearData() {
@@ -85,39 +89,4 @@ public class DataPool {
         }
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonPropertyOrder({
-            "expires_in",           // in this demonstration, this is ignored
-            "access_token"
-    })
-    private class OauthResponse {
-
-        @JsonProperty("expires_in")
-        private Integer expiresIn;
-        @JsonProperty("access_token")
-        private String accessToken;
-
-        private OauthResponse() {
-        }
-
-        @JsonProperty("expires_in")
-        public Integer getExpiresIn() {
-            return expiresIn;
-        }
-
-        @JsonProperty("expires_in")
-        public void setExpiresIn(Integer expiresIn) {
-            this.expiresIn = expiresIn;
-        }
-
-        @JsonProperty("access_token")
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        @JsonProperty("access_token")
-        public void setAccessToken(String accessToken) {
-            this.accessToken = accessToken;
-        }
-    }
 }
