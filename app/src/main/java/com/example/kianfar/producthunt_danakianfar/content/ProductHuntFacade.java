@@ -112,7 +112,7 @@ public class ProductHuntFacade {
                 String temp = user.getImageUrl().getImageUrl();
                 if (temp.length() > 0) {
                     if (!downloadedImages.contains(user.getId())) { // only download image if not on device already
-                        Log.d("Product Hunt API", "calling for image " + user.getId());
+//                        Log.d("Product Hunt API", "calling for image " + user.getId());
                         sendVolleyImageRequest(temp, user.getId() + "");
                     }
                 }
@@ -132,7 +132,7 @@ public class ProductHuntFacade {
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
-                        Log.d("Product Hunt API", "image received!" + userid);
+//                        Log.d("Product Hunt API", "image received!" + userid);
                         imageHelper.write2disk(response, userid);
                     }
                 }, 0, 0, ImageView.ScaleType.FIT_XY, Bitmap.Config.ARGB_8888, new Response.ErrorListener() {
